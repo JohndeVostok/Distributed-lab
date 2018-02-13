@@ -4,7 +4,16 @@ import (
 	"fmt"
 	"mapreduce"
 	"os"
+	"strconv"
+	"strings"
+	"unicode"
 )
+
+func checkError(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 //
 // The map function is called once for each file of input. The first
@@ -14,7 +23,14 @@ import (
 // of key/value pairs.
 //
 func mapF(filename string, contents string) []mapreduce.KeyValue {
-	// Your code here (Part II).
+	pairs := make([]mapreduce.KeyValue, 0)
+	keys := strings.FieldsFunc(contents, func(c rune) bool {
+		return !unicode.IsLetter(c)
+	})
+	for _, key := range keys {
+		pairs = append(pairs, mapreduce.KeyValue{key, "1"})
+	}
+	return pairs
 }
 
 //
@@ -23,7 +39,13 @@ func mapF(filename string, contents string) []mapreduce.KeyValue {
 // any map task.
 //
 func reduceF(key string, values []string) string {
-	// Your code here (Part II).
+	res := 0
+	for _, value := range values {
+		tmp, err := strconv.Atoi(value)
+		checkError(err)
+		res += tmp
+	}
+	return strconv.Itoa(res)
 }
 
 // Can be run in 3 ways:
